@@ -3,6 +3,12 @@ import csv
 from faker import Faker
 
 def parse_args():
+    """
+    Parse command-line arguments.
+    Behavior:
+    - If --list is provided: only the --list flag is required.
+    - Otherwise: --row, --field, and --output are required.
+    """
     parser=argparse.ArgumentParser(description="Generating a CSV using Faker")
     parser.add_argument('--row','--row',type=int,help="enter the number of rows you want")
     parser.add_argument('--field','--field',nargs="+",help="the fields you want")
@@ -10,13 +16,15 @@ def parse_args():
     parser.add_argument('--list',action='store_true',help="this is all availabale fields")
     args=parser.parse_args()
     
+    
+    # If user did not ask to list the available fields, validate required args.
     if not args.list:
         miss=[]
         if args.row is None:
             miss.append('--row')
         if args.field is None:
             miss.append('--field')
-        if args.field is None:
+        if args.output is None:
             miss.append('--output')
         if miss:
             parser.error(
@@ -30,16 +38,18 @@ def parse_args():
 def main():
     args = parse_args()
     fake = Faker()
+    # If --list was passed, print available callable provider methods on Faker
     if args.list:
         provider=sorted(  m for m in dir(fake)if m != "seed" and not m.startswith("_") and callable(getattr(fake, m)))
         
         print ("Availabe fields")
         for p in provider:
             print("-",p)
+        # Mention the script's custom special fields too
         print("Special fields: id, number, float, boolean")
         return
     
-    
+    # Create header list from requested fields.
     header=[]
     for fld in args.field:
         header.append(fld.lower() if fld.lower() in ['id','number','float','boolean'] else fld)
@@ -52,21 +62,24 @@ def main():
             r=[]
             for fld in args.field:
                 fld_lower = fld.lower()
+                # Handle custom special fields directly
                 if fld_lower =='id':
-                    r.append(i)
+                    r.append(i) # sequential id
                 elif fld_lower =='number':
-                    r.append(fake.random_number())
+                    r.append(fake.random_number()) # Faker integer
                 elif fld_lower == 'boolean':
-                    r.append(fake.boolean())
+                    r.append(fake.boolean()) # Faker boolean
                 elif fld_lower == 'float':
-                    r.append(fake.pyfloat())
+                    r.append(fake.pyfloat()) # Faker float
                 else:
                     if not hasattr(fake, fld):
                         print(f"Error: Faker has no provider named '{fld}'")
                         return
                     r.append(getattr(fake, fld)())
+            # Write the completed row to the CSV
             writer.writerow(r)
     print("Finished writing to " + args.output)
+    # Optional: print file contents (commented out)
     # print("\nContents of", args.output)
     # with open(args.output, 'r', encoding='utf-8') as f:
     #     print(f.read())
