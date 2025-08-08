@@ -76,12 +76,6 @@ id,name,email,boolean
 - `ModuleNotFoundError: No module named 'faker'` → run `pip install -r requirements.txt`.
 - If a field produces unexpected values, check the Faker docs or try a different provider name.
 
-# Extending this tool
-Want more features? Consider adding:
-- JSON or SQL output options
-- Column value constraints (e.g., min/max for numbers, ranges for dates)
-- Locale support (e.g., `Faker(locale='de_DE')`)
-- Custom providers or a config file to define complex records
 
 
 Enjoy your fake data playground — and remember, it’s all pretend. 😉
